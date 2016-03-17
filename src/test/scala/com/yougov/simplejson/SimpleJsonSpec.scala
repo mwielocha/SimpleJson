@@ -7,27 +7,9 @@ class SimpleJsonSpec extends FlatSpec with Matchers {
 
   case class Person(name: String, age: Int)
 
-  implicit val personWriter = Json.define[Person] {
-    v =>
-      List(
-        "name" -> v.name,
-        "age" -> v.age
-      )
-  }
-
   case class Employee(person: Person, salary: Double)
 
-  implicit val employeeWriter = Json.define[Employee] {
-    v =>
-      List(
-        "person" -> v.person,
-        "salary" -> v.salary
-      )
-  }
-
   "SimpleJson" should "serialize int to json" in {
-
-    import simplejson._
 
     val a: Int = 42
 
@@ -43,31 +25,9 @@ class SimpleJsonSpec extends FlatSpec with Matchers {
 
   }
 
-  it should "serialize a list of tuples to json" in {
-
-    import simplejson._
-
-    val list: List[(String, JsonWrapper)] = List(
-      "name" -> "John",
-      "age" -> 42
-    )
-
-    Json.toJson(list) shouldBe """{"name":"John","age":42}"""
-
-  }
-
   it should "serialize a case class to json" in {
     
     case class Person(name: String, age: Int)
-
-    implicit object PersonWriter extends JsonWriter[Person] {
-      override def write(v: Person) = {
-        Json.toJson(
-          "name" -> v.name,
-          "age" -> v.age
-        )
-      }
-    }
 
     val a = Person("John", 42)
 
@@ -93,21 +53,12 @@ class SimpleJsonSpec extends FlatSpec with Matchers {
 
   it should "serialize an array of objects" in {
 
-    case class User(name: String)
-
-    implicit val userWriter = Json.define[User] {
-      u =>
-        List(
-          "name" -> u.name
-        )
-    }
-
     val list = List(
-      User("John"),
-      User("Jim")
+      Person("John", 42),
+      Person("Jim", 26)
     )
 
-    Json.toJson(list) shouldBe """[{"name":"John"},{"name":"Jim"}]"""
+    Json.toJson(list) shouldBe """[{"name":"John","age":42},{"name":"Jim","age":26}]"""
   }
 
   it should "serialize set of ints" in {
